@@ -133,6 +133,17 @@ python3 ~/.hermes/skills/creative/artifact-builder/scripts/send-artifact.py \
   /tmp/report-folded.html "Open Report" <host> [chat_id] [thread_id]
 ```
 
+Or use the one-command wrapper:
+
+```bash
+python3 ~/.hermes/skills/creative/artifact-builder/scripts/send-folded-markdown.py \
+  /tmp/report.md \
+  "Open Report" \
+  <host> [chat_id] [thread_id]
+```
+
+Use `--dry-run` to only generate HTML.
+
 Use this for:
 
 - catch-up packets

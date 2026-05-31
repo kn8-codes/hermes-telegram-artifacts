@@ -217,7 +217,25 @@ Then send the generated HTML like any other artifact:
 python3 scripts/send-artifact.py /tmp/folded-markdown-demo.html "Open Folded Markdown" your-domain.com
 ```
 
-Options:
+Or use the one-command wrapper:
+
+```bash
+python3 scripts/send-folded-markdown.py \
+  examples/folded-markdown-demo.md \
+  "Folded Markdown Demo" \
+  your-domain.com
+```
+
+Use `--dry-run` to generate the HTML without sending:
+
+```bash
+python3 scripts/send-folded-markdown.py \
+  examples/folded-markdown-demo.md \
+  "Folded Markdown Demo" \
+  --dry-run
+```
+
+Generator options:
 
 | Arg | Description |
 |-----|-------------|
