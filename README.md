@@ -199,6 +199,33 @@ python3 scripts/artifact-server.py [--port 9877] [--host 127.0.0.1]
 - `GET /artifacts/latest-age` — age in seconds of the latest artifact
 - `DELETE /artifact/<id>` — delete an artifact
 
+### generate-folded-markdown-viewer.py
+
+Generate a Telegram-friendly HTML viewer from Markdown where sections fold by heading. Useful for long notes, catch-up packets, reports, and agent outputs that should be skimmed first and expanded later.
+
+```bash
+python3 scripts/generate-folded-markdown-viewer.py \
+  --file examples/folded-markdown-demo.md \
+  --title "Folded Markdown Demo" \
+  --fold-level 2 \
+  --out /tmp/folded-markdown-demo.html
+```
+
+Then send the generated HTML like any other artifact:
+
+```bash
+python3 scripts/send-artifact.py /tmp/folded-markdown-demo.html "Open Folded Markdown" your-domain.com
+```
+
+Options:
+
+| Arg | Description |
+|-----|-------------|
+| `--file`, `--md`, `--stdin` | Markdown input source |
+| `--title` | Viewer title |
+| `--fold-level` | Fold on headings up to this level; default `2` |
+| `--out` | Output HTML path |
+
 ### send-artifact.py
 
 One-shot: register + send. The primary delivery script.

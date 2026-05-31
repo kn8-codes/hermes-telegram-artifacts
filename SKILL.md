@@ -118,6 +118,32 @@ send_message(message="Here's the report:\n\nARTIFACT:<id> Report Title", target=
 
 **Note:** All endpoints are served by the standalone `artifact-server.py` (bundled with this skill). No webui patches needed.
 
+## Folded Markdown Viewer
+
+For long Markdown reports or catch-up packets, generate a folded viewer instead of dumping the whole document into chat:
+
+```bash
+python3 ~/.hermes/skills/creative/artifact-builder/scripts/generate-folded-markdown-viewer.py \
+  --file /tmp/report.md \
+  --title "Report" \
+  --fold-level 2 \
+  --out /tmp/report-folded.html
+
+python3 ~/.hermes/skills/creative/artifact-builder/scripts/send-artifact.py \
+  /tmp/report-folded.html "Open Report" <host> [chat_id] [thread_id]
+```
+
+Use this for:
+
+- catch-up packets
+- long agent answers
+- meeting notes
+- research reports
+- decision logs
+- contribution/test receipts
+
+The folded viewer keeps Markdown as the source material but gives Telegram a skimmable, expandable reading surface.
+
 ## Starter Template
 
 ```html
