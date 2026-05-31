@@ -118,6 +118,29 @@ send_message(message="Here's the report:\n\nARTIFACT:<id> Report Title", target=
 
 **Note:** All endpoints are served by the standalone `artifact-server.py` (bundled with this skill). No webui patches needed.
 
+## Conversation Packet Viewer
+
+For catch-up packets that should be browsed by card/status instead of folded by Markdown heading, generate a conversation packet artifact from JSON:
+
+```bash
+python3 ~/.hermes/skills/creative/artifact-builder/scripts/generate-conversation-packet.py \
+  --json /tmp/conversation-packet.json \
+  --out /tmp/conversation-packet.html
+
+python3 ~/.hermes/skills/creative/artifact-builder/scripts/send-artifact.py \
+  /tmp/conversation-packet.html "Open Conversation Packet" <host> [chat_id] [thread_id]
+```
+
+Card fields: `question`, `summary`, `status`, `tags`, `artifacts`, `decisions`, `receipts`, `full`.
+
+Use this when the user needs to skim:
+
+- what happened
+- what needs a decision
+- what artifacts were created
+- what is parked
+- what has receipts
+
 ## Folded Markdown Viewer
 
 For long Markdown reports or catch-up packets, generate a folded viewer instead of dumping the whole document into chat:

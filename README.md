@@ -199,6 +199,29 @@ python3 scripts/artifact-server.py [--port 9877] [--host 127.0.0.1]
 - `GET /artifacts/latest-age` — age in seconds of the latest artifact
 - `DELETE /artifact/<id>` — delete an artifact
 
+### generate-conversation-packet.py
+
+Generate a card-based catch-up viewer from JSON. Useful when an agent conversation needs to be skimmed by question/status rather than read as one long scroll.
+
+```bash
+python3 scripts/generate-conversation-packet.py \
+  --json examples/conversation-packet-demo.json \
+  --out /tmp/conversation-packet-demo.html
+
+python3 scripts/send-artifact.py /tmp/conversation-packet-demo.html "Open Conversation Packet" your-domain.com
+```
+
+Each card can include:
+
+- question/title
+- summary
+- status: `done`, `needs_decision`, `blocked`, or `parked`
+- tags
+- artifacts
+- decisions/follow-ups
+- receipts
+- full note
+
 ### generate-folded-markdown-viewer.py
 
 Generate a Telegram-friendly HTML viewer from Markdown where sections fold by heading. Useful for long notes, catch-up packets, reports, and agent outputs that should be skimmed first and expanded later.

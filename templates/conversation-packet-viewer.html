@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{TITLE}}</title>
+<style>
+:root{--bg:var(--tg-theme-bg-color,#0f1115);--card:var(--tg-theme-section-bg-color,#171a21);--fg:var(--tg-theme-text-color,#eef2f7);--muted:var(--tg-theme-hint-color,#9aa4b2);--accent:var(--tg-theme-accent-text-color,#7dd3fc);--border:var(--tg-theme-section-separator-color,#2b3240);--green:#16a34a;--yellow:#d97706;--red:#dc2626;--blue:#2563eb}
+*{box-sizing:border-box} body{margin:0;padding:14px;font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--fg);line-height:1.45}.toolbar{position:sticky;top:0;z-index:2;background:linear-gradient(var(--bg) 75%,color-mix(in srgb,var(--bg) 0%,transparent));padding-bottom:10px}.title{font-size:22px;font-weight:750;letter-spacing:-.3px}.meta{color:var(--muted);font-size:12px;margin-top:4px}.filters{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.chip{border:1px solid var(--border);background:var(--card);color:var(--fg);border-radius:999px;padding:7px 10px;font-size:12px}.chip.active{background:var(--accent);color:#001018}.card{background:var(--card);border:1px solid var(--border);border-radius:14px;margin:10px 0;overflow:hidden}.head{display:flex;gap:10px;align-items:flex-start;padding:13px 14px;cursor:pointer}.arrow{color:var(--muted);transition:.15s;font-size:12px;margin-top:3px}.card.open .arrow{transform:rotate(90deg)}.main{flex:1;min-width:0}.q{font-weight:680}.summary{color:var(--muted);font-size:13px;margin-top:4px}.badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.badge{font-size:11px;border-radius:6px;padding:3px 6px;background:rgba(125,211,252,.12);color:var(--accent)}.done{background:rgba(22,163,74,.16);color:#86efac}.need{background:rgba(217,119,6,.18);color:#fbbf24}.blocked{background:rgba(220,38,38,.16);color:#fca5a5}.parked{background:rgba(148,163,184,.15);color:#cbd5e1}.body{display:none;border-top:1px solid var(--border);padding:13px 14px}.card.open .body{display:block}.section{margin:10px 0}.label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:5px}.item{background:rgba(255,255,255,.035);border-radius:8px;padding:8px;margin:5px 0;font-size:13px;overflow-wrap:anywhere}code{background:rgba(255,255,255,.08);border-radius:4px;padding:1px 4px}.empty{color:var(--muted);text-align:center;padding:36px 0}.controls{margin-left:auto;display:flex;gap:6px}button{cursor:pointer}.small{font-size:11px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="toolbar"><div class="title">{{TITLE}}</div><div class="meta" id="meta"></div><div class="filters" id="filters"></div></div>
+<div id="cards"></div>
+<script>
+const PACKET = {{PACKET_JSON}};
+const statuses = ['all','needs_decision','done','blocked','parked'];
+let active = 'all';
+function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function badgeClass(status){return status==='done'?'done':status==='needs_decision'?'need':status==='blocked'?'blocked':status==='parked'?'parked':''}
+function list(items){items=items||[];return items.length?items.map(x=>`<div class="item">${esc(x)}</div>`).join(''):'<div class="item small">None</div>'}
+function renderFilters(){const f=document.getElementById('filters');f.innerHTML=statuses.map(s=>`<button class="chip ${s===active?'active':''}" data-filter="${s}">${s.replace('_',' ')}</button>`).join('')+`<span class="controls"><button class="chip" data-action="expand">Expand</button><button class="chip" data-action="collapse">Collapse</button></span>`}
+function render(){renderFilters();const cards=PACKET.cards||[];const filtered=cards.filter(c=>active==='all'||c.status===active||(c.tags||[]).includes(active));document.getElementById('meta').textContent=`${cards.length} cards · ${filtered.length} shown · ${PACKET.generated_at||''}`;const root=document.getElementById('cards');if(!filtered.length){root.innerHTML='<div class="empty">No cards for this filter.</div>';return}root.innerHTML=filtered.map((c,i)=>`<article class="card ${i===0?'open':''}"><div class="head"><div class="arrow">▶</div><div class="main"><div class="q">${esc(c.question||c.title||'Untitled')}</div><div class="summary">${esc(c.summary||'')}</div><div class="badges"><span class="badge ${badgeClass(c.status)}">${esc(c.status||'unknown')}</span>${(c.tags||[]).map(t=>`<span class="badge">${esc(t)}</span>`).join('')}</div></div></div><div class="body"><div class="section"><div class="label">Artifacts</div>${list(c.artifacts)}</div><div class="section"><div class="label">Decisions / follow-up</div>${list(c.decisions)}</div><div class="section"><div class="label">Full note</div><div class="item">${esc(c.full||'')}</div></div>${c.receipts&&c.receipts.length?`<div class="section"><div class="label">Receipts</div>${list(c.receipts)}</div>`:''}</div></article>`).join('')}
+document.addEventListener('click',e=>{const chip=e.target.closest('.chip');if(chip&&chip.dataset.filter){active=chip.dataset.filter;render();return}if(chip&&chip.dataset.action==='expand'){document.querySelectorAll('.card').forEach(c=>c.classList.add('open'));return}if(chip&&chip.dataset.action==='collapse'){document.querySelectorAll('.card').forEach(c=>c.classList.remove('open'));return}const head=e.target.closest('.head');if(head)head.parentElement.classList.toggle('open')});
+const tg=(window.Telegram&&window.Telegram.WebApp)?window.Telegram.WebApp:null;if(tg){try{tg.ready();tg.setHeaderColor(tg.themeParams?.bg_color||'#0f1115');tg.setBackgroundColor(tg.themeParams?.bg_color||'#0f1115')}catch(e){}}
+render();
+</script>
+</body>
+</html>

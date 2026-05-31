@@ -1,0 +1,36 @@
+{
+  "title": "Conversation Packet Demo",
+  "generated_at": "demo",
+  "cards": [
+    {
+      "question": "Publish durable-mesh",
+      "summary": "Public-safe repo was created, pushed, and licensed CC BY 4.0.",
+      "status": "done",
+      "tags": ["artifact", "github"],
+      "artifacts": ["https://github.com/kn8-codes/durable-mesh"],
+      "decisions": ["Later: decide whether executable templates/scripts need MIT dual-license."],
+      "receipts": ["commit fb1a67d Add CC BY 4.0 license"],
+      "full": "The durable-mesh repo now holds public-safe field notes and patterns. It is not the private ops board. GitHub does not detect CC BY 4.0 automatically, but LICENSE and README are explicit."
+    },
+    {
+      "question": "HDI contribution pass",
+      "summary": "Meshtastic-LLM no-hardware test found a small verified compatibility fix.",
+      "status": "needs_decision",
+      "tags": ["hdi", "meshtastic", "pr"],
+      "artifacts": ["/Users/kn8/projects/belt-mesh-ops/projects/hdi-meshtastic-llm-contribution.md"],
+      "decisions": ["Open small PR?", "Post Discord note before or after PR?"],
+      "receipts": ["python meshtastic-bridge.py --test passed after local patch"],
+      "full": "Current meshtastic protobuf constants are TELEMETRY_APP and TEXT_MESSAGE_APP. The project test used older PORTNUM_* names. The stub sendText signature also used dest while real SerialInterface accepts destinationId. Local patch made --test complete and record one queued send."
+    },
+    {
+      "question": "ShopFloor LocalNet mode",
+      "summary": "A tiny intranet/outpost ShopFloor remains parked as a strong future lane.",
+      "status": "parked",
+      "tags": ["shopfloor", "localnet"],
+      "artifacts": ["/Users/kn8/MESH_BOARD/projects/shopfloor-localnet.md"],
+      "decisions": ["Later: choose implementation shape and storage."],
+      "receipts": [],
+      "full": "The concept is a local Wi-Fi/intranet version of ShopFloor for tools, skills, requests, availability, outpost resources, and time ledger. It aligns with HDI LocalNet and durable mesh principles."
+    }
+  ]
+}
