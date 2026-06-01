@@ -167,6 +167,14 @@ python3 ~/.hermes/skills/creative/artifact-builder/scripts/send-folded-markdown.
 
 Use `--dry-run` to only generate HTML.
 
+For the simplest local workflow, use `telegram-md`:
+
+```bash
+~/.hermes/skills/creative/artifact-builder/scripts/telegram-md /tmp/report.md --title "Report"
+```
+
+That prints a standalone folded HTML file path. Add `--host <host>` when you want to send through the Mini App artifact flow.
+
 Use this for:
 
 - catch-up packets

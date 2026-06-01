@@ -258,6 +258,20 @@ python3 scripts/send-folded-markdown.py \
   --dry-run
 ```
 
+For the simplest local workflow, use `telegram-md`:
+
+```bash
+scripts/telegram-md examples/folded-markdown-demo.md --title "Folded Markdown Demo"
+```
+
+That prints a standalone HTML path you can open, attach, or register later. To send through the artifact flow:
+
+```bash
+scripts/telegram-md examples/folded-markdown-demo.md \
+  --title "Folded Markdown Demo" \
+  --host your-domain.com
+```
+
 Generator options:
 
 | Arg | Description |
