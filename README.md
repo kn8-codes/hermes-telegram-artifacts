@@ -264,13 +264,25 @@ For the simplest local workflow, use `telegram-md`:
 scripts/telegram-md examples/folded-markdown-demo.md --title "Folded Markdown Demo"
 ```
 
-That prints a standalone HTML path you can open, attach, or register later. To send through the artifact flow:
+That prints a standalone HTML path you can open, attach, or register later.
+
+For the operator-facing send workflow, use `telegram-md-send`. Start with `--dry-run`; it generates HTML and prints the command that would send it without registering or messaging Telegram:
 
 ```bash
-scripts/telegram-md examples/folded-markdown-demo.md \
+scripts/telegram-md-send examples/folded-markdown-demo.md \
+  --title "Folded Markdown Demo" \
+  --dry-run
+```
+
+Real sends require an HTTPS artifact host:
+
+```bash
+scripts/telegram-md-send examples/folded-markdown-demo.md \
   --title "Folded Markdown Demo" \
   --host your-domain.com
 ```
+
+For Cloudflare quick tunnels, either pass the `trycloudflare.com` host with `--host` or export `CLOUDFLARE_QUICK_TUNNEL_URL` and add `--use-quick-tunnel-env`. The wrapper does not auto-start quick tunnels yet; tunnel lifecycle still needs a durable manager.
 
 Generator options:
 

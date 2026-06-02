@@ -1,0 +1,124 @@
+#!/usr/bin/env python3
+"""telegram-md-send: operator-facing folded Markdown send wrapper.
+
+This keeps the common path short while making the dangerous path explicit:
+- --dry-run generates HTML and prints the command that would send it.
+- real sends require a public HTTPS host via --host or CLOUDFLARE_QUICK_TUNNEL_URL.
+
+Cloudflare quick tunnels are intentionally not auto-started here yet. Starting a
+long-lived tunnel from a one-shot wrapper leaves process lifecycle and URL reuse
+ambiguous; dead little daemons are how dashboards become haunted houses.
+"""
+
+from __future__ import annotations
+
+import argparse
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+SEND_FOLDED = ROOT / "scripts" / "send-folded-markdown.py"
+
+
+def default_title(path: Path) -> str:
+    return path.stem.replace("-", " ").replace("_", " ").title()
+
+
+def normalize_host(raw: str) -> str:
+    host = raw.strip()
+    if host.startswith("https://"):
+        host = host[len("https://") :]
+    if host.startswith("http://"):
+        raise SystemExit("ERROR: Telegram Mini Apps require HTTPS; got an http:// host")
+    return host.rstrip("/")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Send a Markdown file as a folded Telegram Mini App artifact."
+    )
+    parser.add_argument("markdown", help="Markdown file to render and send")
+    parser.add_argument("--title", help="Viewer/button title. Defaults to filename-derived title.")
+    parser.add_argument("--host", help="Public HTTPS artifact host, e.g. example.trycloudflare.com")
+    parser.add_argument(
+        "--use-quick-tunnel-env",
+        action="store_true",
+        help="Use CLOUDFLARE_QUICK_TUNNEL_URL as host if --host is not provided.",
+    )
+    parser.add_argument("--chat-id", help="Optional Telegram chat ID; otherwise send-artifact.py uses env")
+    parser.add_argument("--thread-id", help="Optional Telegram thread/topic ID; otherwise send-artifact.py uses env")
+    parser.add_argument("--fold-level", type=int, default=2, choices=range(1, 7), metavar="1-6", help="Fold on headings up to this level; default 2")
+    parser.add_argument("--out", help="Keep generated HTML at this path; defaults to /tmp/<stem>-telegram-md-send.html")
+    parser.add_argument("--dry-run", action="store_true", help="Generate HTML only; do not register or send to Telegram")
+    args = parser.parse_args()
+
+    if not SEND_FOLDED.exists():
+        raise SystemExit(f"ERROR: missing sender wrapper: {SEND_FOLDED}")
+
+    md = Path(args.markdown).expanduser().resolve()
+    if not md.exists():
+        parser.error(f"Markdown file not found: {md}")
+    if not md.is_file():
+        parser.error(f"Not a file: {md}")
+
+    title = args.title or default_title(md)
+    out = Path(args.out).expanduser().resolve() if args.out else Path("/tmp") / f"{md.stem}-telegram-md-send.html"
+
+    host = args.host
+    if not host and args.use_quick_tunnel_env:
+        host = os.environ.get("CLOUDFLARE_QUICK_TUNNEL_URL", "")
+    if host:
+        host = normalize_host(host)
+
+    if not args.dry_run and not host:
+        raise SystemExit(
+            "ERROR: real send requires --host or --use-quick-tunnel-env with "
+            "CLOUDFLARE_QUICK_TUNNEL_URL set. Use --dry-run to generate safely."
+        )
+
+    cmd = [
+        sys.executable,
+        str(SEND_FOLDED),
+        str(md),
+        title,
+        host or "dry-run.invalid",
+        "--fold-level",
+        str(args.fold_level),
+        "--keep-html",
+        str(out),
+    ]
+    if args.dry_run:
+        cmd.append("--dry-run")
+    if args.chat_id:
+        cmd.append(args.chat_id)
+        if args.thread_id:
+            cmd.append(args.thread_id)
+    elif args.thread_id:
+        parser.error("--thread-id requires --chat-id")
+
+    subprocess.run(cmd, check=True)
+
+    if args.dry_run:
+        send_preview = [
+            str(Path("scripts") / "telegram-md-send"),
+            str(md),
+            "--title",
+            title,
+            "--host",
+            host or "<https-host>",
+        ]
+        if args.chat_id:
+            send_preview.extend(["--chat-id", args.chat_id])
+        if args.thread_id:
+            send_preview.extend(["--thread-id", args.thread_id])
+        print("DRY RUN: no Telegram message sent")
+        print(f"HTML: {out}")
+        print("SEND COMMAND: " + " ".join(send_preview))
+
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
