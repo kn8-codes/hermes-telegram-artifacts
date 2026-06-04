@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import shlex
 import subprocess
 import sys
 from pathlib import Path
@@ -115,7 +116,7 @@ def main() -> int:
             send_preview.extend(["--thread-id", args.thread_id])
         print("DRY RUN: no Telegram message sent")
         print(f"HTML: {out}")
-        print("SEND COMMAND: " + " ".join(send_preview))
+        print("SEND COMMAND: " + " ".join(shlex.quote(part) for part in send_preview))
 
     return 0
 
